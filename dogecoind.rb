@@ -3,23 +3,30 @@ require 'formula'
 class Dogecoind < Formula
     head 'https://github.com/dogecoin/dogecoin.git', :using => :git
 
-    url 'https://github.com/dogecoin/dogecoin/archive/1.6.tar.gz'
-    sha1 '07cdf9b54de39f981c6f9c89a5cd0b974f266939'
+    url 'https://github.com/dogecoin/dogecoin/archive/v1.10.0.tar.gz'
+    sha256 'e392f4142819fdab313ba921af53fdbd2cf6ee8965d237d0cb5cda8a52c97084'
 
+    depends_on 'automake'
+    depends_on 'autoconf'
+    depends_on 'libtool'
     depends_on 'miniupnpc'
     depends_on 'openssl'
-    depends_on 'berkeley-db'
+    depends_on 'pkg-config'
+    depends_on 'protobuf'
+    depends_on 'qt5'
+    depends_on 'berkeley-db' #TODO see about version lock?
     depends_on 'boost' => 'universal'
 
     def install
-        inreplace 'contrib/debian/examples/dogecoin.conf', '#testnet=1', 'testnet=1'
-        inreplace 'contrib/debian/examples/dogecoin.conf', '#server=1', 'server=1'
+        inreplace 'contrib/debian/examples/dogecoin.conf', '#testnet=0', 'testnet=1'
+        inreplace 'contrib/debian/examples/dogecoin.conf', '#server=0', 'server=1'
         inreplace 'contrib/debian/examples/dogecoin.conf', '#rpcuser=Ulysseys', 'rpcuser=dogecoinrpc'
-        inreplace 'contrib/debian/examples/dogecoin.conf', '#rpcpassword=YourSuperGreatPasswordNumber_385593', 'rpcpassword=4bEGCHMQqX6PeQyicj9Z9Yq1FQCKYyQS1w8wZERQy3tL'
-        inreplace 'src/makefile.osx', 'CFLAGS += -stdlib=libstdc++', '#CFLAGS += -stdlib=libstdc++'
+        inreplace 'contrib/debian/examples/dogecoin.conf', '#rpcpassword=YourSuperGreatPasswordNumber_DO_NOT_USE_THIS_OR_YOU_WILL_GET_ROBBED_385593', 'rpcpassword=4bEGCHMQqX6PeQyicj9Z9Yq1FQCKYyQS1w8wZERQy3tL'
 
         cd 'src' do
-            system 'make -f makefile.osx'
+            system './autogen.sh'
+            system './configure --with-gui=qt5'
+            system 'make'
         end
 
         bin.install 'src/dogecoind'
